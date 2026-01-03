@@ -415,7 +415,7 @@ const HomeInteractiveCTA = () => {
                     transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
                     className="relative hidden md:block"
                 >
-                    <div className="w-64 h-64 rounded-full overflow-hidden relative flex items-center justify-center hover:scale-105 transition-transform duration-500">
+                    <div className="w-64 h-64 rounded-full overflow-hidden relative flex items-center justify-center rotate-45 hover:rotate-0 transition-transform duration-500">
                         <img src="/assets/favicon/logo_ti.png" alt="Logo" className="w-full h-full object-contain object-center" />
                     </div>
                 </motion.div>
