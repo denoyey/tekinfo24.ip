@@ -46,7 +46,7 @@ const LoadingScreen = ({ onComplete }) => {
             setCount(current);
             if (current >= 100) {
                 clearInterval(timer);
-                setTimeout(onComplete, 200);
+                setTimeout(onComplete, 1000);
             }
         }, intervalTime);
 
