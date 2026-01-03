@@ -153,6 +153,30 @@ const Gallery = () => {
         setIsDragging(false);
     };
 
+    const onTouchStart = (e) => {
+        if (scale > 1 && e.touches.length === 1) {
+            setIsDragging(true);
+            const touch = e.touches[0];
+            setDragStart({ x: touch.clientX - position.x, y: touch.clientY - position.y });
+        }
+    };
+
+    const onTouchMove = (e) => {
+        if (isDragging && scale > 1 && e.touches.length === 1) {
+            // Prevent scrolling on mobile when dragging the zoomed image
+            // Note: touch-action: none in style also helps
+            const touch = e.touches[0];
+            setPosition({
+                x: touch.clientX - dragStart.x,
+                y: touch.clientY - dragStart.y
+            });
+        }
+    };
+
+    const onTouchEnd = () => {
+        setIsDragging(false);
+    };
+
     const [columnsCount, setColumnsCount] = useState(2);
 
     useEffect(() => {
@@ -375,8 +399,14 @@ const Gallery = () => {
                             onMouseMove={onMouseMove}
                             onMouseUp={onMouseUp}
                             onMouseLeave={onMouseUp}
+                            onTouchStart={onTouchStart}
+                            onTouchMove={onTouchMove}
+                            onTouchEnd={onTouchEnd}
                             onClick={(e) => e.stopPropagation()}
-                            style={{ cursor: scale > 1 ? (isDragging ? 'grabbing' : 'grab') : 'default' }}
+                            style={{
+                                cursor: scale > 1 ? (isDragging ? 'grabbing' : 'grab') : 'default',
+                                touchAction: scale > 1 ? 'none' : 'auto'
+                            }}
                         >
                             <motion.img
                                 ref={imageRef}
