@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 // eslint-disable-next-line no-unused-vars
-import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
+import { motion, useScroll, useTransform, AnimatePresence, useSpring, useVelocity, useAnimationFrame, useMotionValue } from 'framer-motion';
 import { ArrowRight, ArrowUpRight, Terminal, Cpu, Globe, Database, Wifi, Code2, Users, Calendar } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { galleryData } from '../data';
@@ -223,21 +223,59 @@ const HomeMiniAbout = () => {
 };
 
 const HomeMiniGallery = () => {
-    const [images, setImages] = useState({ smt1Images: [], smt2Images: [] });
-    const [activeImage, setActiveImage] = useState(null);
-
-    useEffect(() => {
+    const [images] = useState(() => {
         const smt1 = galleryData.find(d => d.id === 1)?.images || [];
         const smt2 = galleryData.find(d => d.id === 2)?.images || [];
-
-        // eslint-disable-next-line
-        setImages({
+        return {
             smt1Images: smt1.length > 0 ? [...smt1].sort(() => 0.5 - Math.random()).slice(0, 12).map(i => i.src) : [],
             smt2Images: smt2.length > 0 ? [...smt2].sort(() => 0.5 - Math.random()).slice(0, 12).map(i => i.src) : []
-        });
-    }, []);
+        };
+    });
+    const [activeImage, setActiveImage] = useState(null);
+
+    const baseX1 = useMotionValue(0);
+    const baseX2 = useMotionValue(0);
+    const { scrollY } = useScroll();
+    const scrollVelocity = useVelocity(scrollY);
+    const smoothVelocity = useSpring(scrollVelocity, {
+        damping: 50,
+        stiffness: 400
+    });
+    const velocityFactor = useTransform(smoothVelocity, [0, 1000], [0, 5], {
+        clamp: false
+    });
+
+    const wrap = (min, max, v) => {
+        const rangeSize = max - min;
+        return ((((v - min) % rangeSize) + rangeSize) % rangeSize) + min;
+    };
+
+    const x1 = useTransform(baseX1, (v) => `${wrap(-25, 0, v)}%`);
+    const x2 = useTransform(baseX2, (v) => `${wrap(-25, 0, v)}%`);
+
+    useAnimationFrame((t, delta) => {
+        const moveByBase = delta / 1000;
+
+        if (!activeImage?.startsWith('smt1')) {
+            let moveBy = -0.5 * moveByBase;
+            if (velocityFactor.get() !== 0) {
+                moveBy += (-1) * Math.abs(velocityFactor.get()) * moveByBase * 2;
+            }
+            baseX1.set(baseX1.get() + moveBy);
+        }
+
+        if (!activeImage?.startsWith('smt2')) {
+            let moveBy = 0.5 * moveByBase;
+            if (velocityFactor.get() !== 0) {
+                moveBy += (1) * Math.abs(velocityFactor.get()) * moveByBase * 2;
+            }
+            baseX2.set(baseX2.get() + moveBy);
+        }
+    });
 
     const { smt1Images, smt2Images } = images;
+    const displayImages1 = [...smt1Images, ...smt1Images, ...smt1Images, ...smt1Images];
+    const displayImages2 = [...smt2Images, ...smt2Images, ...smt2Images, ...smt2Images];
 
     const handleImageClick = (id, e) => {
         if (window.innerWidth < 768) {
@@ -251,6 +289,43 @@ const HomeMiniGallery = () => {
             setActiveImage(null);
         }
     };
+
+    const renderMarqueeRow = (displayImages, xMotion, prefix) => (
+        <div
+            className="overflow-hidden group"
+        >
+            <motion.div
+                className="flex gap-4 md:gap-8 pl-4 min-w-max will-change-transform"
+                style={{ x: xMotion }}
+            >
+                {displayImages.map((src, idx) => {
+                    const uniqueId = `${prefix}-${idx}`;
+                    const isActive = activeImage === uniqueId;
+                    return (
+                        <div
+                            key={uniqueId}
+                            onClick={(e) => handleImageClick(uniqueId, e)}
+                            className={`w-[200px] sm:w-[280px] md:w-[350px] aspect-4/3 bg-zinc-200 overflow-hidden transition-all duration-500 rounded-2xl relative group/item ${isActive ? 'grayscale-0' : 'grayscale'}`}
+                        >
+                            <img
+                                src={src}
+                                alt={`${prefix === 'smt1' ? 'Semester 1' : 'Semester 2'} - ${idx}`}
+                                className="w-full h-full object-cover object-center transition-transform duration-700 select-none"
+                                loading="lazy"
+                                decoding="async"
+                                onContextMenu={(e) => e.preventDefault()}
+                                draggable={false}
+                                fetchPriority="low"
+                            />
+                            <div className={`absolute top-2 left-2 bg-black/60 text-white text-[10px] px-2 py-0.5 rounded-full transition-opacity select-none pointer-events-none ${isActive ? 'opacity-100' : 'md:opacity-0 group-hover/item:opacity-100'}`}>
+                                {prefix === 'smt1' ? 'Smt 1' : 'Smt 2'}
+                            </div>
+                        </div>
+                    );
+                })}
+            </motion.div>
+        </div>
+    );
 
     return (
         <section className="py-16 md:py-24 border-t border-zinc-200 overflow-hidden" onClick={handleBackgroundClick}>
@@ -284,67 +359,8 @@ const HomeMiniGallery = () => {
                 viewport={{ once: false, amount: 0.2 }}
                 transition={{ duration: 1, ease: "easeOut" }}
             >
-                <div className="flex gap-4 md:gap-8 overflow-hidden group">
-                    <div
-                        className="flex gap-4 md:gap-8 pl-4 min-w-max animate-marquee md:group-hover:[animation-play-state:paused] will-change-transform"
-                        style={activeImage?.startsWith('smt1') ? { animationPlayState: 'paused' } : {}}
-                    >
-                        {[...smt1Images, ...smt1Images, ...smt1Images, ...smt1Images].map((src, idx) => {
-                            const uniqueId = `smt1-${idx}`;
-                            const isActive = activeImage === uniqueId;
-                            return (
-                                <div
-                                    key={uniqueId}
-                                    onClick={(e) => handleImageClick(uniqueId, e)}
-                                    className={`w-[200px] sm:w-[280px] md:w-[350px] aspect-4/3 bg-zinc-200 overflow-hidden transition-all duration-500 rounded-2xl cursor-pointer relative group/item ${isActive ? 'grayscale-0' : 'grayscale hover:grayscale-0'}`}
-                                >
-                                    <img
-                                        src={src}
-                                        alt="Smt 1"
-                                        className="w-full h-full object-cover object-center group-hover/item:scale-110 transition-transform duration-700 select-none"
-                                        loading="lazy"
-                                        decoding="async"
-                                        onContextMenu={(e) => e.preventDefault()}
-                                        draggable={false}
-                                        fetchPriority="low"
-                                    />
-                                    <div className={`absolute top-2 left-2 bg-black/60 text-white text-[10px] px-2 py-0.5 rounded-full transition-opacity select-none pointer-events-none ${isActive ? 'opacity-100' : 'md:opacity-0 group-hover/item:opacity-100'}`}>Smt 1</div>
-                                </div>
-                            );
-                        })}
-                    </div>
-                </div>
-
-                <div className="flex gap-4 md:gap-8 overflow-hidden group">
-                    <div
-                        className="flex gap-4 md:gap-8 pl-4 min-w-max animate-marquee-reverse md:group-hover:[animation-play-state:paused] will-change-transform"
-                        style={activeImage?.startsWith('smt2') ? { animationPlayState: 'paused' } : {}}
-                    >
-                        {[...smt2Images, ...smt2Images, ...smt2Images, ...smt2Images].map((src, idx) => {
-                            const uniqueId = `smt2-${idx}`;
-                            const isActive = activeImage === uniqueId;
-                            return (
-                                <div
-                                    key={uniqueId}
-                                    onClick={(e) => handleImageClick(uniqueId, e)}
-                                    className={`w-[200px] sm:w-[280px] md:w-[350px] aspect-4/3 bg-zinc-200 overflow-hidden transition-all duration-500 rounded-2xl cursor-pointer relative group/item ${isActive ? 'grayscale-0' : 'grayscale hover:grayscale-0'}`}
-                                >
-                                    <img
-                                        src={src}
-                                        alt="Smt 2"
-                                        className="w-full h-full object-cover object-center group-hover/item:scale-110 transition-transform duration-700 select-none"
-                                        loading="lazy"
-                                        decoding="async"
-                                        onContextMenu={(e) => e.preventDefault()}
-                                        draggable={false}
-                                        fetchPriority='low'
-                                    />
-                                    <div className={`absolute top-2 left-2 bg-black/60 text-white text-[10px] px-2 py-0.5 rounded-full transition-opacity select-none pointer-events-none ${isActive ? 'opacity-100' : 'md:opacity-0 group-hover/item:opacity-100'}`}>Smt 2</div>
-                                </div>
-                            );
-                        })}
-                    </div>
-                </div>
+                {renderMarqueeRow(displayImages1, x1, 'smt1')}
+                {renderMarqueeRow(displayImages2, x2, 'smt2')}
             </motion.div>
 
             <motion.div
