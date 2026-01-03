@@ -322,7 +322,8 @@ const Gallery = () => {
                                                     src={img.src}
                                                     alt={img.alt || "Gallery Image"}
                                                     className="w-full h-auto object-cover transform transition-transform duration-700 group-hover:scale-110 block"
-                                                    loading="lazy"
+                                                    loading={index < 2 ? "eager" : "lazy"}
+                                                    fetchPriority={index < 2 ? "high" : "auto"}
                                                     decoding="async"
                                                     onLoad={() => handleImageLoad(img.id)}
                                                     onError={() => handleImageLoad(img.id)}
