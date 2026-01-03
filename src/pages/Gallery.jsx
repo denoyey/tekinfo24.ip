@@ -321,7 +321,7 @@ const Gallery = () => {
                                                 <img
                                                     src={img.src}
                                                     alt={img.alt || "Gallery Image"}
-                                                    className="w-full h-auto object-cover transform transition-transform duration-700 group-hover:scale-110"
+                                                    className="w-full h-auto object-cover transform transition-transform duration-700 group-hover:scale-110 block"
                                                     loading="eager"
                                                     decoding="async"
                                                     onLoad={() => handleImageLoad(img.id)}
