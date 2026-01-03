@@ -421,9 +421,10 @@ const Gallery = () => {
                             onTouchMove={onTouchMove}
                             onTouchEnd={onTouchEnd}
                             onClick={(e) => e.stopPropagation()}
+                            onContextMenu={(e) => e.preventDefault()}
                             style={{
                                 cursor: scale > 1 ? (isDragging ? 'grabbing' : 'grab') : 'default',
-                                touchAction: scale > 1 ? 'none' : 'auto'
+                                touchAction: 'none'
                             }}
                         >
                             <motion.img
@@ -443,6 +444,7 @@ const Gallery = () => {
                                 alt={selectedImage.alt}
                                 className="max-h-[85vh] md:max-h-[80vh] w-auto max-w-[95vw] select-none shadow-2xl"
                                 draggable={false}
+                                onContextMenu={(e) => e.preventDefault()}
                             />
                         </div>
 
