@@ -1,9 +1,20 @@
+import { useState, useEffect } from 'react';
 import { Users, Wifi, ShieldCheck, Heart, Code, Terminal, Cpu, ArrowUpRight, Globe } from "lucide-react";
 import { Link } from "react-router-dom";
 // eslint-disable-next-line no-unused-vars
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 
 const AboutUs = () => {
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        if (isLoading) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = 'unset';
+        }
+    }, [isLoading]);
+
     const fadeInUp = {
         initial: { opacity: 0, y: 40 },
         whileInView: { opacity: 1, y: 0 },
@@ -29,6 +40,12 @@ const AboutUs = () => {
 
     return (
         <div className="min-h-screen bg-white text-zinc-900 font-sans selection:bg-black selection:text-white">
+            <AnimatePresence mode="wait">
+                {isLoading && (
+                    <LoadingScreen onComplete={() => setIsLoading(false)} />
+                )}
+            </AnimatePresence>
+
             <section className="relative pt-28 pb-16 md:pt-48 md:pb-32 px-4 md:px-10 overflow-hidden">
                 <div className="absolute inset-0 bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] bg-size-[16px_16px] mask-[radial-gradient(ellipse_50%_50%_at_50%_50%,#000_70%,transparent_100%)] pointer-events-none opacity-50"></div>
 
@@ -213,5 +230,39 @@ const AboutUs = () => {
         </div>
     )
 }
+
+const LoadingScreen = ({ onComplete }) => {
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            onComplete();
+        }, 2000);
+        return () => clearTimeout(timer);
+    }, [onComplete]);
+
+    return (
+        <motion.div
+            className="fixed inset-0 z-999 flex items-center justify-center bg-[#1a1a1a] text-white"
+            initial={{ y: 0 }}
+            exit={{
+                y: "-100%",
+                transition: {
+                    duration: 0.8,
+                    ease: [0.76, 0, 0.24, 1]
+                }
+            }}
+        >
+            <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.8, ease: "easeOut" }}
+                className="relative"
+            >
+                <span className="text-[12vw] md:text-[10vw] font-bold tracking-tighter block text-center">
+                    About Us.
+                </span>
+            </motion.div>
+        </motion.div>
+    );
+};
 
 export default AboutUs;

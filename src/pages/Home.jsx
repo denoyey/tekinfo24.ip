@@ -1,18 +1,76 @@
 import { useState, useEffect } from 'react';
 // eslint-disable-next-line no-unused-vars
-import { motion, useScroll, useTransform } from 'framer-motion';
+import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
 import { ArrowRight, ArrowUpRight, Terminal, Cpu, Globe, Database, Wifi, Code2, Users, Calendar } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { galleryData } from '../data';
 
 const Home = () => {
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        if (isLoading) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = 'unset';
+        }
+    }, [isLoading]);
+
     return (
         <div className="bg-[#FAFAFA] text-[#1a1a1a] font-sans selection:bg-black selection:text-white overflow-x-hidden">
+            <AnimatePresence mode="wait">
+                {isLoading && (
+                    <LoadingScreen onComplete={() => setIsLoading(false)} />
+                )}
+            </AnimatePresence>
+
             <HomeHero />
             <HomeMiniAbout />
             <HomeMiniGallery />
             <HomeInteractiveCTA />
         </div>
+    );
+};
+
+const LoadingScreen = ({ onComplete }) => {
+    const [count, setCount] = useState(0);
+
+    useEffect(() => {
+        const duration = 2000;
+        const steps = 100;
+        const intervalTime = duration / steps;
+
+        let current = 0;
+        const timer = setInterval(() => {
+            current += 1;
+            setCount(current);
+            if (current >= 100) {
+                clearInterval(timer);
+                setTimeout(onComplete, 200);
+            }
+        }, intervalTime);
+
+        return () => clearInterval(timer);
+    }, [onComplete]);
+
+    return (
+        <motion.div
+            className="fixed inset-0 z-999 flex items-center justify-center bg-[#1a1a1a] text-white"
+            initial={{ y: 0 }}
+            exit={{
+                y: "-100%",
+                transition: {
+                    duration: 0.8,
+                    ease: [0.76, 0, 0.24, 1]
+                }
+            }}
+        >
+            <div className="relative">
+                <span className="text-[15vw] sm:text-[12vw] md:text-[10vw] font-bold font-mono tracking-tighter block">
+                    {count}%
+                </span>
+            </div>
+        </motion.div>
     );
 };
 

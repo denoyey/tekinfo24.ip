@@ -5,12 +5,21 @@ import { ArrowDown, Loader2, Eye, Download, X, ZoomIn, ZoomOut, RotateCcw, Image
 import { motion, AnimatePresence } from "framer-motion";
 
 const Gallery = () => {
+    const [isIntroLoading, setIsIntroLoading] = useState(true);
     const [activeFilter, setActiveFilter] = useState("Semua");
     const [visibleCount, setVisibleCount] = useState(20);
     const [loadedImages, setLoadedImages] = useState(new Set());
     const [selectedImage, setSelectedImage] = useState(null);
 
     const [isFilterVisible, setIsFilterVisible] = useState(true);
+
+    useEffect(() => {
+        if (isIntroLoading) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = 'unset';
+        }
+    }, [isIntroLoading]);
 
     useEffect(() => {
         const handleScroll = () => {
@@ -30,6 +39,8 @@ const Gallery = () => {
     }, []);
 
     useEffect(() => {
+        if (isIntroLoading) return;
+
         if (selectedImage) {
             document.body.style.overflow = 'hidden';
         } else {
@@ -38,7 +49,7 @@ const Gallery = () => {
         return () => {
             document.body.style.overflow = 'unset';
         };
-    }, [selectedImage]);
+    }, [selectedImage, isIntroLoading]);
 
     const [scale, setScale] = useState(1);
     const [position, setPosition] = useState({ x: 0, y: 0 });
@@ -206,6 +217,12 @@ const Gallery = () => {
 
     return (
         <div className="min-h-screen bg-white text-zinc-900 font-sans selection:bg-black selection:text-white">
+            <AnimatePresence mode="wait">
+                {isIntroLoading && (
+                    <LoadingScreen onComplete={() => setIsIntroLoading(false)} />
+                )}
+            </AnimatePresence>
+
             <section className="relative pt-28 pb-10 md:pt-48 md:pb-15 px-4 overflow-hidden">
                 <div className="absolute inset-0 bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] bg-size-[16px_16px] mask-[radial-gradient(ellipse_50%_50%_at_50%_50%,#000_70%,transparent_100%)] pointer-events-none opacity-50"></div>
 
@@ -483,3 +500,37 @@ const Gallery = () => {
 };
 
 export default Gallery;
+
+const LoadingScreen = ({ onComplete }) => {
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            onComplete();
+        }, 2000);
+        return () => clearTimeout(timer);
+    }, [onComplete]);
+
+    return (
+        <motion.div
+            className="fixed inset-0 z-999 flex items-center justify-center bg-[#1a1a1a] text-white"
+            initial={{ y: 0 }}
+            exit={{
+                y: "-100%",
+                transition: {
+                    duration: 0.8,
+                    ease: [0.76, 0, 0.24, 1]
+                }
+            }}
+        >
+            <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.8, ease: "easeOut" }}
+                className="relative"
+            >
+                <span className="text-[15vw] sm:text-[12vw] md:text-[10vw] font-bold tracking-tighter block text-center">
+                    Gallery.
+                </span>
+            </motion.div>
+        </motion.div>
+    );
+};
