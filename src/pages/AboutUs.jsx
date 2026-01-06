@@ -4,6 +4,40 @@ import { Link } from "react-router-dom";
 // eslint-disable-next-line no-unused-vars
 import { motion, AnimatePresence } from "framer-motion";
 
+const LoadingScreen = ({ onComplete }) => {
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            onComplete();
+        }, 2000);
+        return () => clearTimeout(timer);
+    }, [onComplete]);
+
+    return (
+        <motion.div
+            className="fixed inset-0 z-999 flex items-center justify-center bg-[#1a1a1a] text-white"
+            initial={{ y: 0 }}
+            exit={{
+                y: "-100%",
+                transition: {
+                    duration: 0.8,
+                    ease: [0.76, 0, 0.24, 1]
+                }
+            }}
+        >
+            <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.8, ease: "easeOut" }}
+                className="relative"
+            >
+                <span className="text-[12vw] md:text-[10vw] font-bold tracking-tighter block text-center">
+                    About Us.
+                </span>
+            </motion.div>
+        </motion.div>
+    );
+};
+
 const AboutUs = () => {
     const [isLoading, setIsLoading] = useState(true);
 
@@ -18,14 +52,14 @@ const AboutUs = () => {
     const fadeInUp = {
         initial: { opacity: 0, y: 40 },
         whileInView: { opacity: 1, y: 0 },
-        viewport: { once: false, amount: 0.3 },
+        viewport: { once: true, amount: 0.3 },
         transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] }
     };
 
     const staggerContainer = {
         initial: { opacity: 0 },
         whileInView: { opacity: 1 },
-        viewport: { once: false, amount: 0.3 },
+        viewport: { once: true, amount: 0.3 },
         transition: {
             staggerChildren: 0.15,
             delayChildren: 0.1
@@ -101,7 +135,7 @@ const AboutUs = () => {
                         variants={staggerContainer}
                         initial="initial"
                         whileInView="whileInView"
-                        viewport={{ once: false, amount: 0.2 }}
+                        viewport={{ once: true, amount: 0.2 }}
                     >
                         <motion.div variants={staggerItem} className="group p-6 md:p-8 rounded-4xl bg-white border border-zinc-200 hover:border-zinc-800 transition-all duration-300 relative overflow-hidden">
                             <div className="w-14 h-14 bg-blue-50 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
@@ -142,7 +176,7 @@ const AboutUs = () => {
                         className="text-center mb-12 md:mb-16"
                         initial={{ opacity: 0, y: 30 }}
                         whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: false, amount: 0.5 }}
+                        viewport={{ once: true, amount: 0.5 }}
                         transition={{ duration: 0.8 }}
                     >
                         <span className="block text-xs font-bold uppercase tracking-widest text-zinc-500 mb-3">Organization</span>
@@ -154,7 +188,7 @@ const AboutUs = () => {
                         variants={staggerContainer}
                         initial="initial"
                         whileInView="whileInView"
-                        viewport={{ once: false, amount: 0.1 }}
+                        viewport={{ once: true, amount: 0.1 }}
                     >
                         {[
                             { role: 'Ketua Kelas', name: 'Muhamad Rafli Ramadhansyah', image: '/assets/struktur-kelas/ketua.webp' },
@@ -189,7 +223,7 @@ const AboutUs = () => {
                         className="w-full md:w-1/2"
                         initial={{ opacity: 0, y: 40 }}
                         whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: false, amount: 0.5 }}
+                        viewport={{ once: true, amount: 0.5 }}
                         transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
                     >
                         <span className="block text-xs font-bold uppercase tracking-widest text-zinc-400 mb-3">Our Culture</span>
@@ -206,7 +240,7 @@ const AboutUs = () => {
                         variants={staggerContainer}
                         initial="initial"
                         whileInView="whileInView"
-                        viewport={{ once: false, amount: 0.3 }}
+                        viewport={{ once: true, amount: 0.3 }}
                     >
                         {[
                             { icon: Users, label: "Sharing Santai", desc: "Ngobrolin teknologi sambil ngopi." },
@@ -230,39 +264,5 @@ const AboutUs = () => {
         </div>
     )
 }
-
-const LoadingScreen = ({ onComplete }) => {
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            onComplete();
-        }, 2000);
-        return () => clearTimeout(timer);
-    }, [onComplete]);
-
-    return (
-        <motion.div
-            className="fixed inset-0 z-999 flex items-center justify-center bg-[#1a1a1a] text-white"
-            initial={{ y: 0 }}
-            exit={{
-                y: "-100%",
-                transition: {
-                    duration: 0.8,
-                    ease: [0.76, 0, 0.24, 1]
-                }
-            }}
-        >
-            <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.8, ease: "easeOut" }}
-                className="relative"
-            >
-                <span className="text-[12vw] md:text-[10vw] font-bold tracking-tighter block text-center">
-                    About Us.
-                </span>
-            </motion.div>
-        </motion.div>
-    );
-};
 
 export default AboutUs;

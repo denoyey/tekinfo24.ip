@@ -4,6 +4,40 @@ import { ArrowDown, Loader2, Eye, Download, X, ZoomIn, ZoomOut, RotateCcw, Image
 // eslint-disable-next-line no-unused-vars
 import { motion, AnimatePresence } from "framer-motion";
 
+const LoadingScreen = ({ onComplete }) => {
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            onComplete();
+        }, 2000);
+        return () => clearTimeout(timer);
+    }, [onComplete]);
+
+    return (
+        <motion.div
+            className="fixed inset-0 z-999 flex items-center justify-center bg-[#1a1a1a] text-white"
+            initial={{ y: 0 }}
+            exit={{
+                y: "-100%",
+                transition: {
+                    duration: 0.8,
+                    ease: [0.76, 0, 0.24, 1]
+                }
+            }}
+        >
+            <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.8, ease: "easeOut" }}
+                className="relative"
+            >
+                <span className="text-[15vw] sm:text-[12vw] md:text-[10vw] font-bold tracking-tighter block text-center">
+                    Gallery.
+                </span>
+            </motion.div>
+        </motion.div>
+    );
+};
+
 const Gallery = () => {
     const [isIntroLoading, setIsIntroLoading] = useState(true);
     const [activeFilter, setActiveFilter] = useState("Semua");
@@ -174,8 +208,6 @@ const Gallery = () => {
 
     const onTouchMove = (e) => {
         if (isDragging && scale > 1 && e.touches.length === 1) {
-            // Prevent scrolling on mobile when dragging the zoomed image
-            // Note: touch-action: none in style also helps
             const touch = e.touches[0];
             setPosition({
                 x: touch.clientX - dragStart.x,
@@ -230,7 +262,7 @@ const Gallery = () => {
                     <motion.h1
                         initial={{ opacity: 0, y: 50 }}
                         whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: false, amount: 0.5 }}
+                        viewport={{ once: true, amount: 0.5 }}
                         transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
                         className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-bold tracking-tighter text-center mb-6 leading-[0.9]"
                     >
@@ -239,7 +271,7 @@ const Gallery = () => {
                     <motion.p
                         initial={{ opacity: 0, y: 40 }}
                         whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: false, amount: 0.5 }}
+                        viewport={{ once: true, amount: 0.5 }}
                         transition={{ duration: 0.8, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
                         className="text-lg sm:text-xl md:text-2xl text-zinc-500 text-center max-w-2xl mx-auto leading-relaxed"
                     >
@@ -503,37 +535,3 @@ const Gallery = () => {
 };
 
 export default Gallery;
-
-const LoadingScreen = ({ onComplete }) => {
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            onComplete();
-        }, 2000);
-        return () => clearTimeout(timer);
-    }, [onComplete]);
-
-    return (
-        <motion.div
-            className="fixed inset-0 z-999 flex items-center justify-center bg-[#1a1a1a] text-white"
-            initial={{ y: 0 }}
-            exit={{
-                y: "-100%",
-                transition: {
-                    duration: 0.8,
-                    ease: [0.76, 0, 0.24, 1]
-                }
-            }}
-        >
-            <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.8, ease: "easeOut" }}
-                className="relative"
-            >
-                <span className="text-[15vw] sm:text-[12vw] md:text-[10vw] font-bold tracking-tighter block text-center">
-                    Gallery.
-                </span>
-            </motion.div>
-        </motion.div>
-    );
-};

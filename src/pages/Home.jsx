@@ -185,7 +185,7 @@ const HomeMiniAbout = () => {
                 <motion.div
                     initial={{ opacity: 0, y: 30 }}
                     whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: false, amount: 0.5 }}
+                    viewport={{ once: true, amount: 0.5 }}
                     transition={{ duration: 0.8, ease: "easeOut" }}
                     className="flex flex-col items-start"
                 >
@@ -201,7 +201,7 @@ const HomeMiniAbout = () => {
                     <motion.p
                         initial={{ opacity: 0, y: 30 }}
                         whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: false, amount: 0.5 }}
+                        viewport={{ once: true, amount: 0.5 }}
                         transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
                         className="text-lg md:text-2xl leading-relaxed text-zinc-700"
                     >
@@ -210,7 +210,7 @@ const HomeMiniAbout = () => {
                     <motion.p
                         initial={{ opacity: 0, y: 30 }}
                         whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: false, amount: 0.5 }}
+                        viewport={{ once: true, amount: 0.5 }}
                         transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
                         className="text-zinc-500 text-base md:text-lg"
                     >
@@ -256,21 +256,17 @@ const HomeMiniGallery = () => {
     useAnimationFrame((t, delta) => {
         const moveByBase = delta / 1000;
 
-        if (!activeImage?.startsWith('smt1')) {
-            let moveBy = -0.5 * moveByBase;
-            if (velocityFactor.get() !== 0) {
-                moveBy += (-1) * Math.abs(velocityFactor.get()) * moveByBase * 2;
-            }
-            baseX1.set(baseX1.get() + moveBy);
+        let moveBy1 = -0.5 * moveByBase;
+        if (velocityFactor.get() !== 0) {
+            moveBy1 += (-1) * Math.abs(velocityFactor.get()) * moveByBase * 2;
         }
+        baseX1.set(baseX1.get() + moveBy1);
 
-        if (!activeImage?.startsWith('smt2')) {
-            let moveBy = 0.5 * moveByBase;
-            if (velocityFactor.get() !== 0) {
-                moveBy += (1) * Math.abs(velocityFactor.get()) * moveByBase * 2;
-            }
-            baseX2.set(baseX2.get() + moveBy);
+        let moveBy2 = 0.5 * moveByBase;
+        if (velocityFactor.get() !== 0) {
+            moveBy2 += (1) * Math.abs(velocityFactor.get()) * moveByBase * 2;
         }
+        baseX2.set(baseX2.get() + moveBy2);
     });
 
     const { smt1Images, smt2Images } = images;
@@ -305,7 +301,7 @@ const HomeMiniGallery = () => {
                         <div
                             key={uniqueId}
                             onClick={(e) => handleImageClick(uniqueId, e)}
-                            className={`w-[200px] sm:w-[280px] md:w-[350px] aspect-4/3 bg-zinc-200 overflow-hidden transition-all duration-500 rounded-2xl relative group/item ${isActive ? 'grayscale-0' : 'grayscale'}`}
+                            className={`w-[200px] sm:w-[280px] md:w-[350px] aspect-4/3 bg-zinc-200 overflow-hidden transition-all duration-500 rounded-2xl relative group/item ${isActive ? 'grayscale-0' : 'grayscale hover:grayscale-0'}`}
                         >
                             <img
                                 src={src}
@@ -333,7 +329,7 @@ const HomeMiniGallery = () => {
                 <motion.div
                     initial={{ opacity: 0, y: 30 }}
                     whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: false, amount: 0.5 }}
+                    viewport={{ once: true, amount: 0.5 }}
                     transition={{ duration: 0.8, ease: "easeOut" }}
                 >
                     <span className="block text-[10px] md:text-xs font-bold uppercase tracking-widest text-zinc-400 mb-2 md:mb-4">02 — Documentation</span>
@@ -342,7 +338,7 @@ const HomeMiniGallery = () => {
                 <motion.div
                     initial={{ opacity: 0, x: 20 }}
                     whileInView={{ opacity: 1, x: 0 }}
-                    viewport={{ once: false, amount: 0.5 }}
+                    viewport={{ once: true, amount: 0.5 }}
                     transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
                 >
                     <Link to="/gallery" className="hidden md:flex items-center gap-2 group text-sm md:text-base">
@@ -356,7 +352,7 @@ const HomeMiniGallery = () => {
                 className="flex flex-col gap-4 md:gap-8"
                 initial={{ opacity: 0, y: 50 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: false, amount: 0.2 }}
+                viewport={{ once: true, amount: 0.2 }}
                 transition={{ duration: 1, ease: "easeOut" }}
             >
                 {renderMarqueeRow(displayImages1, x1, 'smt1')}
@@ -385,7 +381,7 @@ const HomeInteractiveCTA = () => {
                 <motion.div
                     initial={{ opacity: 0, y: 30 }}
                     whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: false, amount: 0.5 }}
+                    viewport={{ once: true, amount: 0.5 }}
                     transition={{ duration: 0.8, ease: "easeOut" }}
                 >
                     <span className="block text-[10px] md:text-xs font-bold uppercase tracking-widest text-zinc-400 mb-2 md:mb-4">03 — Connect</span>
@@ -411,7 +407,7 @@ const HomeInteractiveCTA = () => {
                 <motion.div
                     initial={{ opacity: 0, scale: 0.8, rotate: 45 }}
                     whileInView={{ opacity: 1, scale: 1, rotate: 0 }}
-                    viewport={{ once: false, amount: 0.5 }}
+                    viewport={{ once: true, amount: 0.5 }}
                     transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
                     className="relative hidden md:block"
                 >
