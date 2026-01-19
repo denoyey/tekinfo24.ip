@@ -110,7 +110,7 @@ const HomeHero = () => {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
                     >
-                        <h1 className="text-[13vw] md:text-[9vw] leading-[0.85] font-black tracking-tighter uppercase mb-6 md:mb-8 relative">
+                        <h1 className="text-[10vw] md:text-[8vw] leading-[0.85] font-black tracking-tighter uppercase mt-25 mb-0 md:mb-8 relative">
                             Tekinfo<br />
                             <span className="text-zinc-400">Twenty</span>Four. --
 
