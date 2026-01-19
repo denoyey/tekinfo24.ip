@@ -112,7 +112,7 @@ const HomeHero = () => {
                     >
                         <h1 className="text-[13vw] md:text-[9vw] leading-[0.85] font-black tracking-tighter uppercase mb-6 md:mb-8 relative">
                             Tekinfo<br />
-                            <span className="text-zinc-400">Two</span>Four. --
+                            <span className="text-zinc-400">Twenty</span>Four. --
 
                             <motion.span
                                 initial={{ opacity: 0, scale: 0 }}
