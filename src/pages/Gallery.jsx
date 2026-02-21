@@ -1,6 +1,6 @@
 import { useState, useMemo, useRef, useEffect } from "react";
 import { galleryData } from "../data";
-import { ArrowDown, Loader2, Eye, Download, X, ZoomIn, ZoomOut, RotateCcw, Image } from "lucide-react";
+import { ArrowDown, Loader2, Eye, Download, X, ZoomIn, ZoomOut, RotateCcw, Image, ExternalLink, FolderOpen, ChevronUp, Filter, Play } from "lucide-react";
 // eslint-disable-next-line no-unused-vars
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -46,6 +46,7 @@ const Gallery = () => {
     const [selectedImage, setSelectedImage] = useState(null);
 
     const [isFilterVisible, setIsFilterVisible] = useState(true);
+    const [isFilterOpen, setIsFilterOpen] = useState(false);
 
     useEffect(() => {
         if (isIntroLoading) {
@@ -93,11 +94,38 @@ const Gallery = () => {
 
     const semesters = ["Semua", ...galleryData.map(d => d.semester)];
 
+    const activeDriveLink = useMemo(() => {
+        if (activeFilter === "Semua") return null;
+        const selectedData = galleryData.find(d => d.semester === activeFilter);
+        return selectedData?.driveLink || null;
+    }, [activeFilter]);
+
+    const activeVideoLink = useMemo(() => {
+        if (activeFilter === "Semua") return null;
+        const selectedData = galleryData.find(d => d.semester === activeFilter);
+        return selectedData?.videoLink || null;
+    }, [activeFilter]);
+
     const filteredImages = useMemo(() => {
         if (activeFilter === "Semua") {
-            return galleryData.flatMap(data =>
-                data.images.map(img => ({ ...img, semester: data.semester }))
-            );
+            const semesterImages = galleryData
+                .filter(data => data.images.length > 0)
+                .map(data =>
+                    data.images.map(img => ({ ...img, semester: data.semester }))
+                );
+
+            const interleaved = [];
+            const maxLength = Math.max(...semesterImages.map(arr => arr.length), 0);
+
+            for (let i = 0; i < maxLength; i++) {
+                for (const imgs of semesterImages) {
+                    if (i < imgs.length) {
+                        interleaved.push(imgs[i]);
+                    }
+                }
+            }
+
+            return interleaved;
         } else {
             const selectedData = galleryData.find(d => d.semester === activeFilter);
             return selectedData ? selectedData.images.map(img => ({ ...img, semester: selectedData.semester })) : [];
@@ -290,28 +318,75 @@ const Gallery = () => {
                         transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
                         className="fixed bottom-8 left-0 right-0 z-40 pointer-events-none"
                     >
-                        <div className="max-w-fit mx-auto px-2 pointer-events-auto">
-                            <div className="bg-white/80 backdrop-blur-md border border-zinc-200/50 shadow-xl rounded-full p-1.5 flex gap-1 md:gap-2 overflow-x-auto no-scrollbar max-w-[95vw]">
-                                {semesters.map((filter) => (
-                                    <button
-                                        key={filter}
-                                        onClick={() => {
-                                            setActiveFilter(filter);
-                                            setVisibleCount(20);
-                                            window.scrollTo({ top: 0, behavior: "smooth" });
-                                        }}
-                                        className={`
-                                    px-4 py-2 rounded-full text-sm md:text-base font-medium transition-all duration-300 whitespace-nowrap
-                                    ${activeFilter === filter
-                                                ? "bg-black text-white shadow-md"
-                                                : "text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900"
-                                            }
-                                `}
+                        <div className="max-w-fit mx-auto px-4 pointer-events-auto relative">
+                            {/* Backdrop overlay when dropdown is open */}
+                            <AnimatePresence>
+                                {isFilterOpen && (
+                                    <motion.div
+                                        initial={{ opacity: 0 }}
+                                        animate={{ opacity: 1 }}
+                                        exit={{ opacity: 0 }}
+                                        className="fixed inset-0 z-[-1]"
+                                        onClick={() => setIsFilterOpen(false)}
+                                    />
+                                )}
+                            </AnimatePresence>
+
+                            {/* Dropdown menu */}
+                            <AnimatePresence>
+                                {isFilterOpen && (
+                                    <motion.div
+                                        initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                                        exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                                        transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+                                        className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 bg-white/90 backdrop-blur-xl border border-zinc-200/50 shadow-2xl rounded-2xl p-1.5 min-w-[180px] max-h-[50vh] overflow-y-auto no-scrollbar"
                                     >
-                                        {filter}
-                                    </button>
-                                ))}
-                            </div>
+                                        {semesters.map((filter) => (
+                                            <button
+                                                key={filter}
+                                                onClick={() => {
+                                                    setActiveFilter(filter);
+                                                    setVisibleCount(20);
+                                                    setIsFilterOpen(false);
+                                                    setTimeout(() => {
+                                                        window.scrollTo({ top: 0, behavior: "smooth" });
+                                                    }, 50);
+                                                }}
+                                                className={`
+                                                    w-full px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 text-left flex items-center justify-between gap-3
+                                                    ${activeFilter === filter
+                                                        ? "bg-black text-white"
+                                                        : "text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900"
+                                                    }
+                                                `}
+                                            >
+                                                {filter}
+                                                {activeFilter === filter && (
+                                                    <span className="w-1.5 h-1.5 rounded-full bg-white" />
+                                                )}
+                                            </button>
+                                        ))}
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
+
+                            {/* Trigger button */}
+                            <button
+                                onClick={() => setIsFilterOpen(prev => !prev)}
+                                className="flex items-center gap-2.5 bg-white/80 backdrop-blur-md border border-zinc-200/50 shadow-xl rounded-full px-5 py-3 hover:shadow-2xl transition-all duration-300 cursor-pointer group"
+                            >
+                                <Filter size={14} className="text-zinc-400" />
+                                <span className="text-sm font-semibold text-zinc-900">
+                                    {activeFilter}
+                                </span>
+                                <motion.div
+                                    animate={{ rotate: isFilterOpen ? 180 : 0 }}
+                                    transition={{ duration: 0.25 }}
+                                >
+                                    <ChevronUp size={14} className="text-zinc-400" />
+                                </motion.div>
+                            </button>
                         </div>
                     </motion.section>
                 )}
@@ -336,6 +411,80 @@ const Gallery = () => {
                         )}
                     </AnimatePresence>
 
+                    <AnimatePresence>
+                        {(activeDriveLink || activeVideoLink) && (
+                            <motion.div
+                                initial={{ opacity: 0, y: -10, height: 0, marginBottom: 0 }}
+                                animate={{ opacity: 1, y: 0, height: "auto", marginBottom: 16 }}
+                                exit={{ opacity: 0, y: -10, height: 0, marginBottom: 0 }}
+                                transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                                className={`grid gap-3 overflow-hidden ${activeDriveLink && activeVideoLink ? 'grid-cols-1 md:grid-cols-2' : 'grid-cols-1'}`}
+                            >
+                                {activeDriveLink && (
+                                    <a
+                                        href={activeDriveLink}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="block group"
+                                    >
+                                        <div className="relative rounded-2xl border border-zinc-200/80 bg-zinc-50 hover:border-zinc-300 transition-all duration-300 overflow-hidden hover:shadow-lg h-full">
+                                            <div className="absolute inset-0 bg-linear-to-r from-blue-50/80 via-transparent to-green-50/60 transition-opacity duration-500" />
+                                            <div className="relative flex items-center gap-4 px-5 py-4 md:px-6 md:py-5">
+                                                <div className="shrink-0 w-10 h-10 md:w-12 md:h-12 rounded-xl bg-linear-to-br from-zinc-100 to-zinc-50 border border-zinc-200/50 flex items-center justify-center group-hover:from-blue-100 group-hover:to-green-50 group-hover:border-blue-200/50 transition-all duration-300">
+                                                    <FolderOpen size={20} className="text-zinc-500 group-hover:text-zinc-900 transition-colors duration-300 md:w-6 md:h-6" />
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                    <p className="text-sm md:text-base font-semibold text-zinc-900 leading-tight">
+                                                        Foto {activeFilter}
+                                                    </p>
+                                                    <p className="text-xs md:text-sm text-zinc-400 mt-0.5 truncate">
+                                                        Google Drive
+                                                    </p>
+                                                </div>
+                                                <div className="shrink-0">
+                                                    <div className="w-8 h-8 rounded-lg bg-black group-hover:bg-zinc-200 flex items-center justify-center transition-all duration-300">
+                                                        <ExternalLink size={14} className="text-white group-hover:text-zinc-900 transition-colors duration-300" />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </a>
+                                )}
+
+                                {activeVideoLink && (
+                                    <a
+                                        href={activeVideoLink}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="block group"
+                                    >
+                                        <div className="relative rounded-2xl border border-zinc-800 bg-zinc-900 hover:border-zinc-600 transition-all duration-300 overflow-hidden hover:shadow-lg hover:shadow-zinc-900/20 h-full">
+                                            <div className="absolute inset-0 bg-linear-to-r from-purple-500/5 via-transparent to-pink-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                                            <div className="relative flex items-center gap-4 px-5 py-4 md:px-6 md:py-5">
+                                                <div className="shrink-0 w-10 h-10 md:w-12 md:h-12 rounded-xl bg-white/10 border border-white/10 flex items-center justify-center group-hover:bg-white/15 group-hover:border-white/20 transition-all duration-300">
+                                                    <Play size={18} className="text-white/70 group-hover:text-white transition-colors duration-300 md:w-5 md:h-5 fill-current" />
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                    <p className="text-sm md:text-base font-semibold text-white leading-tight">
+                                                        Video {activeFilter}
+                                                    </p>
+                                                    <p className="text-xs md:text-sm text-zinc-500 mt-0.5 truncate">
+                                                        Google Drive
+                                                    </p>
+                                                </div>
+                                                <div className="shrink-0">
+                                                    <div className="w-8 h-8 rounded-lg bg-white/10 group-hover:bg-white flex items-center justify-center transition-all duration-300">
+                                                        <ExternalLink size={14} className="text-zinc-400 group-hover:text-zinc-900 transition-colors duration-300" />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </a>
+                                )}
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+
                     {visibleImages.length > 0 ? (
                         <>
                             <div className="flex gap-4 items-start">
@@ -346,7 +495,7 @@ const Gallery = () => {
                                                 key={img.id || `${colIndex}-${index}`}
                                                 initial={{ opacity: 0, scale: 0.9, y: 30 }}
                                                 whileInView={{ opacity: 1, scale: 1, y: 0 }}
-                                                viewport={{ once: false, amount: 0.1 }}
+                                                viewport={{ once: true, amount: 0.1 }}
                                                 transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
                                                 className="relative group rounded-xl overflow-hidden bg-zinc-200 border border-zinc-100"
                                             >

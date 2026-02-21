@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 // eslint-disable-next-line no-unused-vars
-import { motion, useScroll, useTransform, AnimatePresence, useSpring, useVelocity, useAnimationFrame, useMotionValue } from 'framer-motion';
+import { motion, useTransform, AnimatePresence, useAnimationFrame, useMotionValue } from 'framer-motion';
 import { ArrowRight, ArrowUpRight, Terminal, Cpu, Globe, Database, Wifi, Code2, Users, Calendar } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { galleryData } from '../data';
@@ -85,7 +85,7 @@ const HomeHero = () => {
 
     return (
         <section className="relative min-h-[60vh] md:min-h-[85vh] flex flex-col justify-end pb-10 md:pb-20 px-4 md:px-10 pt-24 md:pt-32 overflow-hidden bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] bg-size-[20px_20px]">
-            <div className="absolute top-[-20%] right-[-10%] w-[50vw] h-[50vw] bg-linear-to-br from-purple-200/30 to-blue-200/30 rounded-full blur-[100px] -z-10 animate-pulse" style={{ animationDuration: '4s' }} />
+            <div className="absolute top-[-20%] right-[-10%] w-[50vw] h-[50vw] bg-linear-to-br from-purple-200/30 to-blue-200/30 rounded-full blur-[80px] -z-10" style={{ transform: 'translateZ(0)' }} />
             {techPills.map((pill, i) => (
                 <motion.div
                     key={i}
@@ -96,7 +96,7 @@ const HomeHero = () => {
                         scale: { duration: 0.5, delay: 0.5 + (i * 0.1) },
                         y: { repeat: Infinity, duration: 3 + (i * 0.5), ease: "easeInOut" }
                     }}
-                    className={`absolute flex items-center gap-1.5 px-3 py-1.5 bg-white/60 backdrop-blur-sm border border-white/50 rounded-full shadow-sm text-[10px] md:text-xs font-semibold text-zinc-600 z-0 ${pill.className}`}
+                    className={`absolute flex items-center gap-1.5 px-3 py-1.5 bg-white/70 border border-white/50 rounded-full shadow-sm text-[10px] md:text-xs font-semibold text-zinc-600 z-0 ${pill.className}`}
                 >
                     {pill.icon}
                     <span>{pill.text}</span>
@@ -171,7 +171,7 @@ const HomeHero = () => {
                 </div>
             </div>
 
-            <div className="absolute top-0 right-0 p-4 opacity-[0.03] select-none pointer-events-none -z-10">
+            <div className="absolute bottom-0 right-0 p-4 opacity-[0.03] select-none pointer-events-none -z-10">
                 <span className="text-[30vw] md:text-[40vw] font-black leading-none">24</span>
             </div>
         </section>
@@ -222,90 +222,41 @@ const HomeMiniAbout = () => {
     );
 };
 
-const HomeMiniGallery = () => {
-    const [images] = useState(() => {
-        const smt1 = galleryData.find(d => d.id === 1)?.images || [];
-        const smt2 = galleryData.find(d => d.id === 2)?.images || [];
-        return {
-            smt1Images: smt1.length > 0 ? [...smt1].sort(() => 0.5 - Math.random()).slice(0, 12).map(i => i.src) : [],
-            smt2Images: smt2.length > 0 ? [...smt2].sort(() => 0.5 - Math.random()).slice(0, 12).map(i => i.src) : []
-        };
-    });
-    const [activeImage, setActiveImage] = useState(null);
-
-    const baseX1 = useMotionValue(0);
-    const baseX2 = useMotionValue(0);
-    const { scrollY } = useScroll();
-    const scrollVelocity = useVelocity(scrollY);
-    const smoothVelocity = useSpring(scrollVelocity, {
-        damping: 50,
-        stiffness: 400
-    });
-    const velocityFactor = useTransform(smoothVelocity, [0, 1000], [0, 5], {
-        clamp: false
-    });
+const MarqueeRow = ({ images, direction, activeImage, onImageClick }) => {
+    const baseX = useMotionValue(0);
 
     const wrap = (min, max, v) => {
         const rangeSize = max - min;
         return ((((v - min) % rangeSize) + rangeSize) % rangeSize) + min;
     };
 
-    const x1 = useTransform(baseX1, (v) => `${wrap(-25, 0, v)}%`);
-    const x2 = useTransform(baseX2, (v) => `${wrap(-25, 0, v)}%`);
+    const x = useTransform(baseX, (v) => `${wrap(-25, 0, v)}%`);
 
     useAnimationFrame((t, delta) => {
-        const moveByBase = delta / 1000;
-
-        let moveBy1 = -0.5 * moveByBase;
-        if (velocityFactor.get() !== 0) {
-            moveBy1 += (-1) * Math.abs(velocityFactor.get()) * moveByBase * 2;
-        }
-        baseX1.set(baseX1.get() + moveBy1);
-
-        let moveBy2 = 0.5 * moveByBase;
-        if (velocityFactor.get() !== 0) {
-            moveBy2 += (1) * Math.abs(velocityFactor.get()) * moveByBase * 2;
-        }
-        baseX2.set(baseX2.get() + moveBy2);
+        const moveBy = direction * 2.0 * (delta / 1000);
+        baseX.set(baseX.get() + moveBy);
     });
 
-    const { smt1Images, smt2Images } = images;
-    const displayImages1 = [...smt1Images, ...smt1Images, ...smt1Images, ...smt1Images];
-    const displayImages2 = [...smt2Images, ...smt2Images, ...smt2Images, ...smt2Images];
+    const displayImages = [...images, ...images, ...images, ...images];
 
-    const handleImageClick = (id, e) => {
-        if (window.innerWidth < 768) {
-            e.stopPropagation();
-            setActiveImage(prev => prev === id ? null : id);
-        }
-    };
-
-    const handleBackgroundClick = () => {
-        if (window.innerWidth < 768) {
-            setActiveImage(null);
-        }
-    };
-
-    const renderMarqueeRow = (displayImages, xMotion, prefix) => (
-        <div
-            className="overflow-hidden group"
-        >
+    return (
+        <div className="overflow-hidden group">
             <motion.div
                 className="flex gap-4 md:gap-8 pl-4 min-w-max will-change-transform"
-                style={{ x: xMotion }}
+                style={{ x }}
             >
-                {displayImages.map((src, idx) => {
-                    const uniqueId = `${prefix}-${idx}`;
+                {displayImages.map((img, idx) => {
+                    const uniqueId = `row-${idx}`;
                     const isActive = activeImage === uniqueId;
                     return (
                         <div
                             key={uniqueId}
-                            onClick={(e) => handleImageClick(uniqueId, e)}
+                            onClick={(e) => onImageClick(uniqueId, e)}
                             className={`w-[200px] sm:w-[280px] md:w-[350px] aspect-4/3 bg-zinc-200 overflow-hidden transition-all duration-500 rounded-2xl relative group/item ${isActive ? 'grayscale-0' : 'grayscale hover:grayscale-0'}`}
                         >
                             <img
-                                src={src}
-                                alt={`${prefix === 'smt1' ? 'Semester 1' : 'Semester 2'} - ${idx}`}
+                                src={img.src}
+                                alt={`${img.label} - ${idx}`}
                                 className="w-full h-full object-cover object-center transition-transform duration-700 select-none"
                                 loading="lazy"
                                 decoding="async"
@@ -314,7 +265,7 @@ const HomeMiniGallery = () => {
                                 fetchPriority="low"
                             />
                             <div className={`absolute top-2 left-2 bg-black/60 text-white text-[10px] px-2 py-0.5 rounded-full transition-opacity select-none pointer-events-none ${isActive ? 'opacity-100' : 'md:opacity-0 group-hover/item:opacity-100'}`}>
-                                {prefix === 'smt1' ? 'Smt 1' : 'Smt 2'}
+                                {img.label}
                             </div>
                         </div>
                     );
@@ -322,6 +273,44 @@ const HomeMiniGallery = () => {
             </motion.div>
         </div>
     );
+};
+
+const PHOTOS_PER_SEMESTER = 2;
+
+const HomeMiniGallery = () => {
+    const [rows] = useState(() => {
+        const allPhotos = galleryData
+            .filter(d => d.images.length > 0)
+            .flatMap(d =>
+                [...d.images]
+                    .sort(() => 0.5 - Math.random())
+                    .slice(0, PHOTOS_PER_SEMESTER)
+                    .map(i => ({ src: i.src, label: `Smt ${d.id}` }))
+            );
+
+        const shuffled = [...allPhotos].sort(() => 0.5 - Math.random());
+
+        const mid = Math.ceil(shuffled.length / 2);
+        return [
+            { id: 'row-1', images: shuffled.slice(0, mid) },
+            { id: 'row-2', images: shuffled.slice(mid) },
+        ];
+    });
+
+    const [activeImage, setActiveImage] = useState(null);
+
+    const handleImageClick = (id, e) => {
+        if (window.innerWidth < 768) {
+            e.stopPropagation();
+            setActiveImage(prev => (prev === id ? null : id));
+        }
+    };
+
+    const handleBackgroundClick = () => {
+        if (window.innerWidth < 768) {
+            setActiveImage(null);
+        }
+    };
 
     return (
         <section className="py-16 md:py-24 border-t border-zinc-200 overflow-hidden" onClick={handleBackgroundClick}>
@@ -355,8 +344,15 @@ const HomeMiniGallery = () => {
                 viewport={{ once: true, amount: 0.2 }}
                 transition={{ duration: 1, ease: "easeOut" }}
             >
-                {renderMarqueeRow(displayImages1, x1, 'smt1')}
-                {renderMarqueeRow(displayImages2, x2, 'smt2')}
+                {rows.map((row, index) => (
+                    <MarqueeRow
+                        key={row.id}
+                        images={row.images}
+                        direction={index % 2 === 0 ? -1 : 1}
+                        activeImage={activeImage}
+                        onImageClick={handleImageClick}
+                    />
+                ))}
             </motion.div>
 
             <motion.div
