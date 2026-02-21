@@ -59,7 +59,7 @@ export const galleryConfig = [
         categories: [
             {
                 prefix: "afterUAS",
-                count: 78,
+                count: 77,
                 folder: "smt2/afterUAS-webp",
                 alt: "After UAS Semester 2",
                 category: "Events",
