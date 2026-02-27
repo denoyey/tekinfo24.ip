@@ -9,7 +9,7 @@ Platform digital resmi untuk dokumentasi, informasi, dan arsip kenangan kelas Te
 
 ## ✨ Fitur Utama
 
-Website ini dibangun dengan fokus pada pengalaman pengguna (UX) yang interaktif, visual yang estetis, dan performa yang cepat.
+Website ini dibangun dengan fokus pada pengalaman pengguna (UX) yang interaktif, visual yang estetis, performa yang cepat, dan arsitektur kode yang *maintainable*.
 
 ### 🏠 Home Page (Beranda)
 
@@ -26,19 +26,15 @@ Website ini dibangun dengan fokus pada pengalaman pengguna (UX) yang interaktif,
 
 ### 📸 Gallery (Dokumentasi)
 
-- **Advanced Masonry Grid**: Tata letak galeri yang responsif menyesuaikan ukuran layar (2 hingga 6 kolom).
-- **Smart Filtering**: Filter foto berdasarkan Semester (Semua, Semester 1, Semester 2, dst).
-- **Interactive Image Modal**:
-  - **Zoom & Pan**: Kemampuan memperbesar dan menggeser foto seperti aplikasi native.
-  - **Download Feature**: Unduh foto langsung dengan nama file yang terorganisir.
-  - **Metadata**: Menampilkan info semester pada setiap foto.
-- **Lazy Loading & Blurhash**: Optimasi performa memuat gambar dengan efek blur saat loading.
-
-### ⚡ Technical Highlights
-
-- **Smooth Animations**: Transisi halaman dan elemen menggunakan `framer-motion`.
-- **Responsive Design**: Tampilan optimal di Mobile, Tablet, hingga Desktop monitor besar.
-- **Optimized Performance**: Penggunaan `react-router-dom` untuk SPA (Single Page Application) yang cepat.
+- **Component-Based Architecture**: Kode galeri yang termodularisasi dengan baik (Header, Grid, Filter, dan Modal terpisah) sehingga sangat mudah dikembangkan.
+- **Advanced Masonry Grid**: Tata letak galeri yang responsif menyesuaikan ukuran layar secara dramatis (2 hingga 6 kolom).
+- **Smart Filtering**: Filter foto dan video berdasarkan Semester secara *real-time* (Semua, Semester 1, Semester 2, dst). Termasuk navigasi eksternal ke Google Drive.
+- **🎵 Auto-Play Background Music (BGM)**: Pengalaman imersif dengan pemutar lagu otomatis (Mendukung fungsi *Next Track*, *Play/Pause*) saat melihat-lihat foto.
+- **Interactive Lightbox (Image Modal)**:
+  - **Pan & Zoom**: Kemampuan memperbesar dan menggeser foto seperti aplikasi *native* di HP maupun Desktop.
+  - **Keyboard Navigation**: Navigasi geser foto menggunakan panah Kiri (*Prev*) dan Kanan (*Next*) via Keyboard.
+  - **Download Feature**: Unduh foto seketika dengan nama *file* yang terorganisir.
+- **Lazy Loading & Blurhash**: Optimasi performa memuat ratusan gambar dengan efek *loading screen* eksklusif.
 
 ## 🛠️ Teknologi yang Digunakan
 
@@ -96,20 +92,23 @@ File hasil build akan berada di folder `dist/`.
 tekfo24/
 ├── index.html
 ├── package.json
-├── public/              # Aset statis (logo, gambar struktur, dll)
-│   └── assets/
+├── public/                 # Aset statis
+│   └── assets/             # Gambar, Ikon, dan File Audio (Music)
 └── src/
-    ├── App.jsx          # Root component & Routing configuration
-    ├── main.jsx         # Entry point
-    ├── index.css        # Global styles & Tailwind types
-    ├── data/            # Data statis (galleryData, dll)
-    └── pages/           # Halaman Utama
-        ├── Home.jsx     # Halaman Beranda
-        ├── AboutUs.jsx  # Halaman Tentang Kami
-        └── Gallery.jsx  # Halaman Galeri
+    ├── App.jsx             # Root component & Routing configuration
+    ├── main.jsx            # Entry point
+    ├── index.css           # Global styles & Tailwind types
+    ├── data/               # Data statis (galleryData, galleryDataHome, dll)
+    ├── components/         # Komponen Modular (Reusable)
+    │   ├── common/         # Komponen umum (seperti ImageViewer)
+    │   └── gallery/        # Komponen khusus halaman Gallery (Grid, Filter, BGM, dll)
+    └── pages/              # Halaman Utama
+        ├── Home.jsx        # Halaman Beranda
+        ├── AboutUs.jsx     # Halaman Tentang Kami
+        └── Gallery.jsx     # Halaman Galeri utama
 ```
 
-## 👨‍💻 Pengembang
+## 👨💻 Pengembang
 
 Dikembangkan dengan ❤️ oleh **Tim IT Tekinfo 24**.
 
