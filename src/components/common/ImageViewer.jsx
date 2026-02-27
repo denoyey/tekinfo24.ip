@@ -1,9 +1,9 @@
-import { useState, useRef } from "react";
+import { useEffect, useState, useRef } from "react";
 // eslint-disable-next-line no-unused-vars
 import { motion, AnimatePresence } from "framer-motion";
-import { X, ZoomIn, ZoomOut, RotateCcw, Download } from "lucide-react";
+import { X, ZoomIn, ZoomOut, RotateCcw, Download, ChevronLeft, ChevronRight } from "lucide-react";
 
-const ImageViewer = ({ selectedImage, onClose, onDownload }) => {
+const ImageViewer = ({ selectedImage, onClose, onDownload, onNext, onPrev, hasNext, hasPrev }) => {
     const [scale, setScale] = useState(1);
     const [position, setPosition] = useState({ x: 0, y: 0 });
     const [isDragging, setIsDragging] = useState(false);
@@ -83,6 +83,23 @@ const ImageViewer = ({ selectedImage, onClose, onDownload }) => {
         setIsDragging(false);
     };
 
+    // Keyboard navigation untuk swipe foto kiri-kanan
+    useEffect(() => {
+        const handleKeyDown = (e) => {
+            if (!selectedImage) return;
+            if (e.key === 'ArrowRight' && hasNext) {
+                onNext();
+            } else if (e.key === 'ArrowLeft' && hasPrev) {
+                onPrev();
+            } else if (e.key === 'Escape') {
+                onClose();
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [selectedImage, hasNext, hasPrev, onNext, onPrev, onClose]);
+
     return (
         <AnimatePresence>
             {selectedImage && (
@@ -135,6 +152,26 @@ const ImageViewer = ({ selectedImage, onClose, onDownload }) => {
                             draggable={false}
                             onContextMenu={(e) => e.preventDefault()}
                         />
+
+                        {/* Navigation Buttons (Kiri / Prev) */}
+                        {hasPrev && (
+                            <button
+                                onClick={(e) => { e.stopPropagation(); onPrev(); }}
+                                className="absolute left-2 md:left-8 top-1/2 -translate-y-1/2 w-10 h-10 md:w-14 md:h-14 bg-zinc-800/50 hover:bg-zinc-700 backdrop-blur-md rounded-full text-white flex items-center justify-center transition-all z-50 border border-white/10 group cursor-pointer"
+                            >
+                                <ChevronLeft size={28} className="group-hover:-translate-x-0.5 transition-transform" />
+                            </button>
+                        )}
+
+                        {/* Navigation Buttons (Kanan / Next) */}
+                        {hasNext && (
+                            <button
+                                onClick={(e) => { e.stopPropagation(); onNext(); }}
+                                className="absolute right-2 md:right-8 top-1/2 -translate-y-1/2 w-10 h-10 md:w-14 md:h-14 bg-zinc-800/50 hover:bg-zinc-700 backdrop-blur-md rounded-full text-white flex items-center justify-center transition-all z-50 border border-white/10 group cursor-pointer"
+                            >
+                                <ChevronRight size={28} className="group-hover:translate-x-0.5 transition-transform" />
+                            </button>
+                        )}
                     </div>
 
                     <div

@@ -8,6 +8,7 @@ import GalleryHeader from "../components/gallery/GalleryHeader";
 import GalleryFilter from "../components/gallery/GalleryFilter";
 import GalleryLinks from "../components/gallery/GalleryLinks";
 import GalleryGrid from "../components/gallery/GalleryGrid";
+import GalleryBGM from "../components/gallery/GalleryBGM";
 
 const Gallery = () => {
     const [isIntroLoading, setIsIntroLoading] = useState(true);
@@ -113,6 +114,25 @@ const Gallery = () => {
         setSelectedImage(null);
     };
 
+    const handleNextImage = () => {
+        if (!selectedImage) return;
+        const currentIndex = visibleImages.findIndex(img => img.id === selectedImage.id);
+        if (currentIndex !== -1 && currentIndex < visibleImages.length - 1) {
+            setSelectedImage(visibleImages[currentIndex + 1]);
+        }
+    };
+
+    const handlePrevImage = () => {
+        if (!selectedImage) return;
+        const currentIndex = visibleImages.findIndex(img => img.id === selectedImage.id);
+        if (currentIndex > 0) {
+            setSelectedImage(visibleImages[currentIndex - 1]);
+        }
+    };
+
+    const hasNextImage = selectedImage ? visibleImages.findIndex(img => img.id === selectedImage.id) < visibleImages.length - 1 : false;
+    const hasPrevImage = selectedImage ? visibleImages.findIndex(img => img.id === selectedImage.id) > 0 : false;
+
     const handleLoadMore = () => {
         setVisibleCount(prev => prev + 20);
     };
@@ -216,7 +236,13 @@ const Gallery = () => {
                 selectedImage={selectedImage}
                 onClose={closeModal}
                 onDownload={handleDownload}
+                onNext={handleNextImage}
+                onPrev={handlePrevImage}
+                hasNext={hasNextImage}
+                hasPrev={hasPrevImage}
             />
+
+            <GalleryBGM isIntroLoading={isIntroLoading} isFilterVisible={isFilterVisible} />
         </div>
     );
 };
