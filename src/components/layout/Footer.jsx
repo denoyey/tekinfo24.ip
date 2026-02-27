@@ -33,7 +33,7 @@ const Footer = () => {
     };
 
     return (
-        <footer className="relative bg-[#111111] text-white overflow-hidden mt-auto">
+        <footer className="relative bg-[#111111] text-white overflow-hidden mt-auto rounded-t-[4rem] md:rounded-t-[6rem]">
             <div className="absolute inset-0 pointer-events-none overflow-hidden">
                 <div className="absolute -bottom-[40%] left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-zinc-800/30 rounded-full blur-[120px]" />
             </div>
